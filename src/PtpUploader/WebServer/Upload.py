@@ -1,17 +1,17 @@
-from WebServer import app
-from WebServer.JobCommon import JobCommon
-from WebServer.UploadFile import UploadFile
+from . import app
+from .JobCommon import JobCommon
+from .UploadFile import UploadFile
 
-from Authentication import requires_auth
-from Helper import GetSuggestedReleaseNameAndSizeFromTorrentFile, SizeToText
-from MyGlobals import MyGlobals
-from Database import Database
-from PtpUploaderMessage import *
-from ReleaseInfo import ReleaseInfo
-from Settings import Settings
+from .Authentication import requires_auth
+from ..Helper import GetSuggestedReleaseNameAndSizeFromTorrentFile, SizeToText
+from ..MyGlobals import MyGlobals
+from ..Database import Database
+from ..PtpUploaderMessage import *
+from ..ReleaseInfo import ReleaseInfo
+from ..Settings import Settings
 
 from flask import jsonify, render_template, request
-from werkzeug import secure_filename
+from werkzeug.utils import secure_filename
 
 import os
 import sys
@@ -120,7 +120,7 @@ def upload():
 		job[ "PersonalRip" ] = 1
 
 	if Settings.SkipDuplicateChecking:
-		job[ "SkipDuplicateCheckingButton" ] = sys.maxint
+		job[ "SkipDuplicateCheckingButton" ] = sys.maxsize
 
 	job[ "ReleaseNotes" ] = Settings.ReleaseNotes
 

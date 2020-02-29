@@ -1,19 +1,19 @@
-from Job.FinishedJobPhase import FinishedJobPhase
-from Job.JobRunningState import JobRunningState
-from Job.WorkerBase import WorkerBase
-from Tool.MakeTorrent import MakeTorrent
+from .FinishedJobPhase import FinishedJobPhase
+from .JobRunningState import JobRunningState
+from .WorkerBase import WorkerBase
+from ..Tool import Mktor
 
-from Database import Database
-from Helper import ParseQueryString, TimeDifferenceToText
-from IdxReader import IdxReader
-from ImageHost.ImageUploader import ImageUploader
-from MyGlobals import MyGlobals
-from Ptp import Ptp
-from PtpSubtitle import *
-from PtpUploaderException import *
-from ReleaseDescriptionFormatter import ReleaseDescriptionFormatter
-from ReleaseExtractor import ReleaseExtractor
-from Settings import Settings
+from ..Database import Database
+from ..Helper import ParseQueryString, TimeDifferenceToText
+from ..IdxReader import IdxReader
+from ..ImageHost.ImageUploader import ImageUploader
+from ..MyGlobals import MyGlobals
+from ..Ptp import Ptp
+from ..PtpSubtitle import *
+from ..PtpUploaderException import *
+from ..ReleaseDescriptionFormatter import ReleaseDescriptionFormatter
+from ..ReleaseExtractor import ReleaseExtractor
+from ..Settings import Settings
 
 import datetime
 import os
@@ -47,7 +47,7 @@ class Upload(WorkerBase):
 		self.VideoFiles = []
 		self.AdditionalFiles = []
 		self.MainMediaInfo = None
-		self.ReleaseDescription = u""
+		self.ReleaseDescription = ""
 
 	def __StopAutomaticJobBeforeExtracting(self):
 		if self.ReleaseInfo.IsUserCreatedJob() or self.ReleaseInfo.AnnouncementSource.StopAutomaticJob!= "beforeextracting":
@@ -280,7 +280,7 @@ class Upload(WorkerBase):
 		else: # Create the torrent including only the single video file.
 			uploadTorrentCreatePath = self.MainMediaInfo.Path
 
-		MakeTorrent.Make( self.ReleaseInfo.Logger, uploadTorrentCreatePath, uploadTorrentFilePath )
+		Mktor.Make( self.ReleaseInfo.Logger, uploadTorrentCreatePath, uploadTorrentFilePath )
 
 		# Local variables are used temporarily to make sure that values only get stored in the database if MakeTorrent.Make succeeded.
 		self.ReleaseInfo.UploadTorrentFilePath = uploadTorrentFilePath
@@ -383,5 +383,5 @@ class Upload(WorkerBase):
 			subprocess.Popen( command, shell = True )
 		except ( KeyboardInterrupt, SystemExit ):
 			raise
-		except Exception, e:
+		except Exception as e:
 			logger.exception( "Got exception while trying to run command '%s' after successful upload." % command )

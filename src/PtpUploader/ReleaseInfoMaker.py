@@ -1,13 +1,13 @@
-from Tool.MakeTorrent import MakeTorrent
+from .Tool import Mktor
 
-from IncludedFileList import IncludedFileList
-from MyGlobals import MyGlobals
-from NfoParser import NfoParser
-from PtpUploaderException import *
-from ReleaseDescriptionFormatter import ReleaseDescriptionFormatter
-from ReleaseExtractor import ReleaseExtractor
-from ReleaseInfo import ReleaseInfo
-from Settings import Settings
+from .IncludedFileList import IncludedFileList
+from .MyGlobals import MyGlobals
+from .NfoParser import NfoParser
+from .PtpUploaderException import *
+from .ReleaseDescriptionFormatter import ReleaseDescriptionFormatter
+from .ReleaseExtractor import ReleaseExtractor
+from .ReleaseInfo import ReleaseInfo
+from .Settings import Settings
 
 import codecs
 import os
@@ -32,7 +32,7 @@ class ReleaseInfoMaker:
 			includedFileList = IncludedFileList()
 			self.VideoFiles, self.AdditionalFiles = ReleaseExtractor.ValidateDirectory( MyGlobals.Logger, self.Path, includedFileList, throwExceptionForUnsupportedFiles = False )
 			if len( self.VideoFiles ) <= 0:
-				print "Path '%s' doesn't contain any videos!" % self.Path
+				print("Path '%s' doesn't contain any videos!" % self.Path)
 				return False
 
 			# We use the parent directory of the path as the working directory.
@@ -48,7 +48,7 @@ class ReleaseInfoMaker:
 			self.ReleaseName, extension = os.path.splitext( self.ReleaseName )
 			self.TorrentDataPath = self.WorkingDirectory
 		else:
-			print "Path '%s' doesn't exists!" % self.Path
+			print("Path '%s' doesn't exists!" % self.Path)
 			return False
 
 		return True
@@ -88,13 +88,13 @@ class ReleaseInfoMaker:
 
 		releaseDescriptionFilePath = os.path.join( self.WorkingDirectory, "PTP " + self.ReleaseName + ".release description.txt" )
 		if os.path.exists( releaseDescriptionFilePath ):
-			print "Can't create release description because '%s' already exists!" % releaseDescriptionFilePath
+			print("Can't create release description because '%s' already exists!" % releaseDescriptionFilePath)
 			return
 
 		torrentName = "PTP " + self.ReleaseName + ".torrent";
 		torrentPath = os.path.join( self.WorkingDirectory, torrentName );
 		if createTorrent and os.path.exists( torrentPath ):
-			print "Can't create torrent because '%s' already exists!" % torrentPath
+			print("Can't create torrent because '%s' already exists!" % torrentPath)
 			return
 
 		# Save the release description.
@@ -102,33 +102,27 @@ class ReleaseInfoMaker:
 
 		# Create the torrent
 		if createTorrent:
-			MakeTorrent.Make( logger, self.Path, torrentPath )
+			Mktor.Make( logger, self.Path, torrentPath )
 			MyGlobals.GetTorrentClient().AddTorrentSkipHashCheck( logger, torrentPath, self.TorrentDataPath )
 
-def Main(argv):
-	print "PtpUploader Release Description Maker by TnS"
+def Main():
+        import argparse
+
+	parser = argparse.ArgumentParser(description="PtpUploader Release Description Maker by TnS")
+
+        group = parser.add_mutually_exclusive_group()
+
+        group.add_argument('--notorrent', action='store_true', help='skip creating and seeding the torrent')
+        group.add_argument('--noscreens', action='store_true', help='skip creating and uploading screenshots')
+        parser.add_argument('path', nargs=1, help="The file or directory to use" )
+
+        args = parser.parse_args()
 	
-	if len( argv ) <= 1:
-		print "Usage:"
-		print "\"ReleaseInfoMaker.py <target directory or filename>\" creates the release description and starts seeding the torrent."
-		print "\"ReleaseInfoMaker.py --notorrent <target directory or filename>\" creates the release description."
-		print "\"ReleaseInfoMaker.py --noscreens <target directory or filename>\" creates the release description without screens and starts seeding the torrent."
-		return
-
-	print ""
-
 	Settings.LoadSettings()
 	MyGlobals.InitializeGlobals( Settings.WorkingPath )
 
-	if len( argv ) == 2:
-		releaseInfoMaker = ReleaseInfoMaker( argv[ 1 ] )
-		releaseInfoMaker.MakeReleaseInfo()
-	elif len( argv ) == 3 and argv[ 1 ] == "--notorrent":
-		releaseInfoMaker = ReleaseInfoMaker( argv[ 2 ] )
-		releaseInfoMaker.MakeReleaseInfo( createTorrent = False )
-	elif len( argv ) == 3 and argv[ 1 ] == "--noscreens":
-		releaseInfoMaker = ReleaseInfoMaker( argv[ 2 ] )
-		releaseInfoMaker.MakeReleaseInfo( createScreens = False )
+	releaseInfoMaker = ReleaseInfoMaker( args.path[0] )
+	releaseInfoMaker.MakeReleaseInfo( createTorrent = (not args.notorrent), createScreens = (not args.noscreens) )
 
 if __name__ == '__main__':
-	Main( sys.argv )
+	Main()

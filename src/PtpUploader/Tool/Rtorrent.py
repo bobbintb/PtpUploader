@@ -1,8 +1,7 @@
-from Tool.PyrocoreBencode import bencode
+from .PyrocoreBencode import bencode
 
-from MyGlobals import MyGlobals
-from PtpUploaderException import PtpUploaderException
-from Settings import Settings
+from ..MyGlobals import MyGlobals
+from ..PtpUploaderException import PtpUploaderException
 
 from pyrobase import bencode
 from pyrocore.util import load_config, metafile
@@ -10,9 +9,8 @@ from pyrocore import config
 
 import os
 import shutil
-import subprocess
 import time
-import xmlrpclib
+import xmlrpc.client
 
 class Rtorrent:
 	def __init__(self):
@@ -27,21 +25,21 @@ class Rtorrent:
 		logger.info( "Initiating the download of torrent '%s' with rTorrent to '%s'." % ( torrentPath, downloadPath ) );
 		
 		file = open( torrentPath, "rb" );
-		contents = xmlrpclib.Binary( file.read() );
+		contents = xmlrpc.client.Binary( file.read() );
 		file.close();
 
 		torrentData = bencode.bread( torrentPath ); 
 		metafile.check_meta( torrentData );
 		infoHash = metafile.info_hash( torrentData );
 
-		self.proxy.load_raw( contents );
+		self.proxy.load.raw( '', contents );
 
 		# If load_raw is slow then set_directory_base throws an exception (Fault: <Fault -501: 'Could not find info-hash.'>),
 		# so we retry adding the torrent some delay.
 		maximumTries = 15
 		while True:
 			try:
-				self.proxy.d.set_directory_base( infoHash, downloadPath );
+				self.proxy.d.directory_base.set( infoHash, downloadPath );
 				self.proxy.d.start( infoHash );
 				break
 			except Exception:
@@ -90,7 +88,7 @@ class Rtorrent:
 		try:
 			# TODO: not the most sophisticated way.
 			# Even a watch dir with Pyinotify would be better probably. rTorrent could write the info hash to a directory watched by us. 
-			completed = self.proxy.d.get_complete( infoHash );
+			completed = self.proxy.d.complete( infoHash );
 			return completed == 1
 		except Exception:
 			logger.exception( "Got exception while trying to check torrent's completion status. Info hash: '%s'." % infoHash );

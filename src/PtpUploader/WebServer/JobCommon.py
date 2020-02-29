@@ -1,22 +1,22 @@
-from Job.JobStartMode import JobStartMode
-from WebServer import app
-from WebServer.Authentication import requires_auth
+from ..Job.JobStartMode import JobStartMode
+from . import app
+from .Authentication import requires_auth
 
-from Database import Database
-from Helper import ParseQueryString, TimeDifferenceToText
-from IncludedFileList import IncludedFileList
-from MyGlobals import MyGlobals
-from NfoParser import NfoParser
-from Ptp import Ptp
-from ReleaseInfo import ReleaseInfo
-from Settings import Settings
+from ..Database import Database
+from ..Helper import ParseQueryString, TimeDifferenceToText
+from ..IncludedFileList import IncludedFileList
+from ..MyGlobals import MyGlobals
+from ..NfoParser import NfoParser
+from ..Ptp import Ptp
+from ..ReleaseInfo import ReleaseInfo
+from ..Settings import Settings
 
 from flask import jsonify, request
-from werkzeug import secure_filename
+from werkzeug.utils import secure_filename
 
 from datetime import datetime
 import os
-import urlparse
+import urllib.parse
 
 class JobCommon:
 	# Needed because urlparse return with empty netloc if protocol is not set.
@@ -29,7 +29,7 @@ class JobCommon:
 	
 	@staticmethod
 	def __GetYouTubeId(text):
-		url = urlparse.urlparse( JobCommon.__AddHttpToUrl( text ) )
+		url = urllib.parse.urlparse( JobCommon.__AddHttpToUrl( text ) )
 		if url.netloc == "youtube.com" or url.netloc == "www.youtube.com":
 			params = ParseQueryString( url.query )
 			youTubeIdList = params.get( "v" )
@@ -48,7 +48,7 @@ class JobCommon:
 		else:
 			# Using urlparse because of torrent permalinks:
 			# https://passthepopcorn.me/torrents.php?id=9730&torrentid=72322
-			url = urlparse.urlparse( JobCommon.__AddHttpToUrl( text ) )
+			url = urllib.parse.urlparse( JobCommon.__AddHttpToUrl( text ) )
 			if url.netloc == "passthepopcorn.me" or url.netloc == "www.passthepopcorn.me" or url.netloc == "tls.passthepopcorn.me":
 				params = ParseQueryString( url.query )
 				ptpIdList = params.get( "id" )
@@ -280,7 +280,7 @@ def MakeIncludedFilesTreeJson(includedFileList):
 				entry[ "IncludePath" ] = file.IncludedFileItem.Name
 				parentList.append( entry )
 
-	root = TreeDirectory( u"" )
+	root = TreeDirectory( "" )
 
 	for entry in includedFileList.Files:
 		root.AddFile( entry )

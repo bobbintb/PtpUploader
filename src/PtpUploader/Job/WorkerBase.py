@@ -1,7 +1,7 @@
-from Job.JobRunningState import JobRunningState
+from .JobRunningState import JobRunningState
 
-from Database import Database
-from PtpUploaderException import *
+from ..Database import Database
+from ..PtpUploaderException import *
 
 class WorkerBase:
 	def __init__(self, phases, jobManager, jobManagerItem):
@@ -22,13 +22,13 @@ class WorkerBase:
 	def Work(self):
 		try:
 			self.__WorkInternal()
-		except Exception, e:
+		except Exception as e:
 			if hasattr( e, "JobRunningState" ):
 				self.ReleaseInfo.JobRunningState = e.JobRunningState
 			else:
 				self.ReleaseInfo.JobRunningState = JobRunningState.Failed
 
-			self.ReleaseInfo.ErrorMessage = unicode( e )
+			self.ReleaseInfo.ErrorMessage = str( e )
 			Database.DbSession.commit()
 			
 			e.Logger = self.ReleaseInfo.Logger

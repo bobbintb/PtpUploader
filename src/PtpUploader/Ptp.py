@@ -1,16 +1,16 @@
-﻿from MyGlobals import MyGlobals
-from PtpMovieSearchResult import PtpMovieSearchResult
-from PtpUploaderException import *
-from Settings import Settings
+﻿from .MyGlobals import MyGlobals
+from .PtpMovieSearchResult import PtpMovieSearchResult
+from .PtpUploaderException import *
+from .Settings import Settings
 
 import requests
-import simplejson as json
 
 import mimetypes
 import os
 import re
 import time
 import traceback
+import json
 
 class Ptp:
 	@staticmethod
@@ -22,7 +22,7 @@ class Ptp:
 			raise PtpUploaderInvalidLoginException( "Couldn't log in to PTP. Your password is not specified." )
 
 		# Get the pass key from the announce URL.
-		passKey = re.match( r"https?://please\.passthepopcorn\.me:\d+/(.+)/announce", Settings.PtpAnnounceUrl )
+		passKey = re.match( r"https?://please\.passthepopcorn\.me:?\d*/(.+)/announce", Settings.PtpAnnounceUrl )
 		if passKey is None:
 			raise PtpUploaderInvalidLoginException( "Couldn't log in to PTP. Pass key not found in the announce URL." )
 		passKey = passKey.group( 1 )
@@ -87,8 +87,6 @@ class Ptp:
 	def NormalizeImdbIdForPtp(imdbId):
 		if len( imdbId ) < 7:
 			return imdbId.rjust( 7, '0' )
-		elif len( imdbId ) > 7:
-			raise PtpUploaderException( "IMDb ID '%s' is longer than seven characters." % imdbId )
 		else:
 			return imdbId
 	
@@ -222,9 +220,8 @@ class Ptp:
 			url = "https://passthepopcorn.me/upload.php";
 			paramList.update( Ptp.__UploadMovieGetParamsForNewMovie( releaseInfo ) );
 		
-		# Add the torrent file.
-		torrentFilename = os.path.basename( torrentPath ); # Filename without path.
-		files = { "file_input": ( torrentFilename, open( torrentPath, "rb" ), "application/x-bittorent" ) }
+		# Add the torrent file, passing a fake string for the filename, since it's not necessary anyway
+		files = { "file_input": ( "placeholder.torrent", open( torrentPath, "rb" ), "application/x-bittorent" ) }
 		result = MyGlobals.session.post( url, data = paramList, files=files )
 		response = result.text
 		Ptp.CheckIfLoggedInFromResponse( result, response );

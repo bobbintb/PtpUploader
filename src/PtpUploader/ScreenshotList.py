@@ -1,4 +1,4 @@
-import simplejson as json
+import json
 
 # For sake of simple JSON serialization an item is a simple list.
 # Item[ 0 ] = name

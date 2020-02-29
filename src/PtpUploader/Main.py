@@ -1,10 +1,10 @@
-from Source.SourceFactory import SourceFactory
-from WebServer.MyWebServer import MyWebServer
+from .Source.SourceFactory import SourceFactory
+from .WebServer.MyWebServer import MyWebServer
 
-from MyGlobals import MyGlobals
-from PtpUploader import PtpUploader
-from Settings import Settings
-from Database import InitDb
+from .MyGlobals import MyGlobals
+from .PtpUploader import PtpUploader
+from .Settings import Settings
+from .Database import InitDb
 
 def Initialize():
 	Settings.LoadSettings()
@@ -23,7 +23,7 @@ def Run():
 		MyGlobals.SourceFactory = SourceFactory()
 	except ( KeyboardInterrupt, SystemExit ):
 		raise
-	except Exception, e:
+	except Exception as e:
 		MyGlobals.Logger.exception( "Got exception while creating SourceFactory()" )
 		raise
 
@@ -40,6 +40,9 @@ def Run():
 	if webServerThread is not None:
 		webServerThread.StopServer()
 
-if __name__ == '__main__':
+def Main():
 	if Initialize():
-		Run()
+		Run()        
+
+if __name__ == '__main__':
+        Main()
