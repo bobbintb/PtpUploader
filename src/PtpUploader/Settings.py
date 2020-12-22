@@ -127,11 +127,12 @@ class Settings(object):
         Settings.configParser = configParser = configparser.ConfigParser()
 
         # Load Settings.ini from the same directory where PtpUploader is.
-        settingsDirectory, moduleFilename = os.path.split(
+        settingsDirectory = os.path.expanduser("../../")
+        moduleFilename = os.path.split(
             __file__)  # __file__ contains the full path of the current running module
         settingsPath = os.path.join(settingsDirectory, "Settings.ini")
         if not os.path.isfile(settingsPath):
-            settingsPath = os.path.expanduser("~/.config/ptpuploader/settings.ini")
+            settingsPath = os.path.expanduser("settings.ini")
         print("Loading settings from '%s'." % settingsPath)  # MyGlobals.Logger is not initalized yet. 
         fp = codecs.open(settingsPath, "r", "utf-8-sig")
         configParser.readfp(fp)
@@ -170,7 +171,7 @@ class Settings(object):
         Settings.IgnoreReleaserGroup = Settings.MakeListFromExtensionString(
             Settings.__GetDefault(configParser, "Settings", "IgnoreReleaserGroup", ""))
         Settings.SceneReleaserGroup = Settings.__LoadSceneGroups(
-            os.path.join(os.path.expanduser("~/.config/ptpuploader"), "scene_groups.txt"))
+            os.path.join(os.path.expanduser(""), "scene_groups.txt"))
 
         Settings.WebServerAddress = Settings.__GetDefault(configParser, "Settings", "WebServerAddress", "")
         Settings.WebServerAddress = Settings.WebServerAddress.replace("http://", "")
@@ -250,27 +251,32 @@ class Settings(object):
     @staticmethod
     def VerifyPaths():
         MyGlobals.Logger.info("Checking paths")
-
-        if not Settings.__VerifyProgramPath("MediaInfo", [Settings.MediaInfoPath, "--version"]):
-            return False
+        if not (Settings.__VerifyProgramPath("MediaInfo", ['../../mediainfo', "--version"]) or
+                Settings.__VerifyProgramPath("MediaInfo", [Settings.MediaInfoPath, "--version"])):
+                return False
 
         if Settings.IsMpvEnabled():
-            if not Settings.__VerifyProgramPath("mpv", [Settings.MpvPath]):
+            if not (Settings.__VerifyProgramPath("mpv", ['../../mpv']) or
+                    Settings.__VerifyProgramPath("mpv", [Settings.MpvPath])):
                 return False
         elif Settings.IsMplayerEnabled():
-            if not Settings.__VerifyProgramPath("mplayer", [Settings.MplayerPath]):
+            if not (Settings.__VerifyProgramPath("mplayer", ['../../mplayer']) or
+                    Settings.__VerifyProgramPath("mplayer", [Settings.MplayerPath])):
                 return False
         else:
-            if not Settings.__VerifyProgramPath("ffmpeg", [Settings.FfmpegPath, "--help"]):
+            if not (Settings.__VerifyProgramPath("ffmpeg", ['../../ffmpeg', "--help"]) or
+                    Settings.__VerifyProgramPath("ffmpeg", [Settings.FfmpegPath, "--help"])):
                 return False
 
         # Optional
-        if len(Settings.UnrarPath) > 0 and (not Settings.__VerifyProgramPath("unrar", [Settings.UnrarPath])):
+        if len(Settings.UnrarPath) > 0 and (not (Settings.__VerifyProgramPath("unrar", ['../../unrar']) or
+                                                 Settings.__VerifyProgramPath("unrar", [Settings.UnrarPath]))):
             return False
 
         # Optional
         if len(Settings.ImageMagickConvertPath) > 0 and (
-        not Settings.__VerifyProgramPath("ImageMagick Convert", [Settings.ImageMagickConvertPath, "--version"])):
+        not (Settings.__VerifyProgramPath("ImageMagick Convert", [Settings.ImageMagickConvertPath, "--version"]) or
+             Settings.__VerifyProgramPath("ImageMagick Convert", ['../../convert', "--version"]))):
             return False
 
         return True
