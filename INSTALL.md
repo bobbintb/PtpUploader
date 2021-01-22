@@ -10,6 +10,10 @@ A lot of effort was made to simplify the installation. Right now, that has king 
 
 That should be it. In the future, I might simpliy this more. See the "Starting PtpUploader" section for how to start it.
 
+Configure Torrent Client
+==================
+Look at kannibalox's version for information on that (https://github.com/kannibalox/PtpUploader/blob/develop/INSTALL.md). I've only been able to test this up to a certain point of compatibility for Python 3 and Windows. I haven't had anything to upload to test further so it might not work. If it doesn't contact me and I will try my best to fix it.
+
 Starting PtpUploader
 ====================
 
