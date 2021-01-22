@@ -20,3 +20,5 @@ Starting PtpUploader
 Navigate to the PtpUploader directory in the command prompt and rain main.py.
 
 1. python.exe main.py
+2. In a web browser, navigate to 127.0.0.1:5500.
+3. Default username and password is admin/admin. This can be changed in the settings file.
