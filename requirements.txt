@@ -1,0 +1,10 @@
+wheel
+-e git+https://github.com/kannibalox/pyrocore.git@py3#egg=pyrocore
+-e git+https://github.com/kannibalox/pyrobase.git@py3#egg=pyrobase
+https://github.com/bobbintb/PtpUploader/archive/master.tar.gz
+sqlalchemy
+werkzeug
+flask
+watchdog
+beautifulsoup4
+pyinstaller
